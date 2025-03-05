@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@yoga-master.v1kbbtv.mongodb.net/?retryWrites=true&w=majority&appName=yoga-master`;
 
@@ -78,6 +78,23 @@ app.get('/classes/:email', async (req, res) => {
 app.get('/classes-manage', async(req, res) =>{
 const result = await classCollections.find().toArray();
 res.send(result);
+});
+
+//update classes statues and reason
+app.patch('/change-status/:id', async(req, res) =>{
+  const id = req.params.id;
+  const status = req.body.status;
+  const reason = req.body.reason;
+  const filter = {_id: new ObjectId(id)};
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      status: status,
+      reason: reason,
+    },
+  };
+  const result = await classCollections.updateOne(filter, updateDoc, options);
+  res.send(result);
 });
 
 app.get('/', (req, res) => {
