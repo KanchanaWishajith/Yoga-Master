@@ -74,7 +74,11 @@ app.get('/classes/:email', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
+//manage classes
+app.get('/classes-manage', async(req, res) =>{
+const result = await classCollections.find().toArray();
+res.send(result);
+});
 
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
