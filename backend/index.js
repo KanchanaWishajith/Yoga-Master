@@ -97,6 +97,13 @@ app.patch('/change-status/:id', async(req, res) =>{
   res.send(result);
 });
 
+//get approved classes
+app.get('/approved-classes', async(req, res) =>{
+  const query = { status: "approved"};
+  const result = await classCollections.find(query).toArray();
+  res.send(result);
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
