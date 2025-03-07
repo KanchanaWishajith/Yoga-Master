@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ServerDescription } = require('mongodb');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@yoga-master.v1kbbtv.mongodb.net/?retryWrites=true&w=majority&appName=yoga-master`;
 
@@ -110,6 +110,32 @@ app.get('/class/:id', async (req, res) =>{
   const query = {_id: new ObjectId(id)};
   const result = await classCollections.findOne(query);
   res.send(result);
+});
+
+//update class details (all data)
+app.put('/update-class/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateClass = req.body;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: {
+        name: updateClass.name,
+        description: updateClass.description, // Fixed case inconsistency
+        price: updateClass.price,
+        availableSeats: updateClass.availableSeats, // Removed incorrect function
+        videoLink: updateClass.videoLink,
+        status: 'pending',
+      }
+    };
+
+    const result = await classCollections.updateOne(filter, updateDoc, options);
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'An error occurred while updating the class.' });
+  }
 });
 
 app.get('/', (req, res) => {
