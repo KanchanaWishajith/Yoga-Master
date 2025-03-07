@@ -104,6 +104,14 @@ app.get('/approved-classes', async(req, res) =>{
   res.send(result);
 });
 
+//get single class details
+app.get('/class/:id', async (req, res) =>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await classCollections.findOne(query);
+  res.send(result);
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
