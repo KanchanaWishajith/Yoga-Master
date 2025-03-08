@@ -28,6 +28,7 @@ async function run() {
 
     const database = client.db("yoga-master");
     classCollections = database.collection("classes"); // Assign to global variable
+    paymentCollections = database.collection("payment");
 
     console.log("Connected to MongoDB ✅");
   } catch (error) {
@@ -145,3 +146,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port} 🚀`);
 });
+
+
+//2.05
