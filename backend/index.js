@@ -168,6 +168,17 @@ app.get('/cart-item/:id', async (req, res) =>{
   res.send(result);
 });
 
+//cart info by user email
+app.get('/cart/:email', async (req, res) => {
+  const email = req.params.email;
+  const query = {userMail: email};
+  const projection = {classId: 1};
+  const carts = await cartCollections.find(query, {projection: projection});
+  const classIds = carts.map((cart) => new ObjectId(cart.classId));
+  const query2 = {_id: {$in: classIds}};
+  const result = await classCollections.find(query2).toArray();
+  res.send(result);
+});
 
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
