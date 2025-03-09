@@ -21,6 +21,11 @@ const client = new MongoClient(uri, {
 
 // ** Declare Global Collections **
 let classCollections;
+let userCollections;
+let cartCollections;
+let paymentCollections;
+let enrolledCollections;
+let appliedCollections;
 
 async function run() {
   try {
@@ -28,7 +33,11 @@ async function run() {
 
     const database = client.db("yoga-master");
     classCollections = database.collection("classes"); // Assign to global variable
-    paymentCollections = database.collection("payment");
+    userCollections = database.collection("users");
+    cartCollections = database.collection("cart");
+    paymentCollections = database.collection("payments");
+    enrolledCollections = database.collection("enrolled");
+    appliedCollections = database.collection("applied");
 
     console.log("Connected to MongoDB ✅");
   } catch (error) {
