@@ -180,6 +180,14 @@ app.get('/cart/:email', async (req, res) => {
   res.send(result);
 });
 
+//delete cart item
+app.delete('/delete-cart-item/:id', async (req, res) =>{
+  const id = req.params.id;
+  const query = {classId: id};
+  const result = await cartCollections.deleteOne(query);
+  res.send(result);
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
