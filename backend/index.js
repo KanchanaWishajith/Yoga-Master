@@ -148,6 +148,16 @@ app.put('/update-class/:id', async (req, res) => {
   }
 });
 
+//Cart Routes !-----------------------------------
+app.post('/add-to-cart', async (req, res) =>{
+  const newCartItem = req.body;
+  const result  = await cartCollections.insertOne(newCartItem);
+  res.send(result);
+});
+
+//
+
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
