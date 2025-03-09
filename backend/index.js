@@ -155,7 +155,18 @@ app.post('/add-to-cart', async (req, res) =>{
   res.send(result);
 });
 
-//
+//get Cart item by id
+app.get('/cart-item/:id', async (req, res) =>{
+  const id = req.params.id;
+  const email = req.body.email;
+  const query = {
+    classId: id,
+    userMail: email
+  };
+  const projection= {classId: 1};
+  const result = await cartCollections.findOne(query, {projection: projection});
+  res.send(result);
+});
 
 
 app.get('/', (req, res) => {
