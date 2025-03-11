@@ -188,6 +188,8 @@ app.delete('/delete-cart-item/:id', async (req, res) =>{
   res.send(result);
 });
 
+
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
@@ -197,4 +199,4 @@ app.listen(port, () => {
 });
 
 
-//2.05
+//2.30
