@@ -188,7 +188,13 @@ app.delete('/delete-cart-item/:id', async (req, res) =>{
   res.send(result);
 });
 
+//Enrollment Routes
+app.get("/popular_classws", async (req, res) =>{
+  const result = await classCollections.find().sort({totalEnrolled: -1}).limit(6).toArray();
+  res.send(result);
+});
 
+3.00
 
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
