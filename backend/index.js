@@ -295,13 +295,18 @@ app.get('/enrolled-classes/:email', async (req, res) =>{
 });
 
 //apply for instructor
-app.post('/apply-instructor', async (req, res) =>{
+app.post('/ass-instructor', async (req, res) =>{
   const data = req.body;
   const result = await appliedCollections.insertOne(data);
   res.send(result);
 });
 
-
+//get applied instructors by email
+app.get('/applied-instructors/:email',async (req, res) => {
+  const email = req.params.email;
+  const result = await appliedCollections.findOne({email});
+  res.send(result);
+});
 
 
 
