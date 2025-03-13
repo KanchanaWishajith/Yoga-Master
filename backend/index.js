@@ -248,6 +248,15 @@ app.get('/admin-stats', async (req, res) =>{
   res.send(result);
 });
 
+//get all instructors
+app.get('/instructors', async (req, res) =>{
+  const result = await userCollections.find({role: 'instructor'}).toArray();
+  res.send(result); 
+});
+
+
+
+
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
 });
