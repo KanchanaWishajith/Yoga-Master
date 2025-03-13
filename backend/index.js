@@ -74,6 +74,15 @@ app.get('/user/:email', async (req, res) => {
   res.send(result);
 });
 
+//delete user by id
+app.delete('/delete-user/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await userCollections.deleteOne(query);
+  res.send(result);
+});
+
+//
 
 
 // ** Classes Route (Now it will work) **
