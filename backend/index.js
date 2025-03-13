@@ -294,6 +294,14 @@ app.get('/enrolled-classes/:email', async (req, res) =>{
   res.send(result);
 });
 
+//apply for instructor
+app.post('/apply-instructor', async (req, res) =>{
+  const data = req.body;
+  const result = await appliedCollections.insertOne(data);
+  res.send(result);
+});
+
+
 
 
 
