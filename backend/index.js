@@ -54,9 +54,18 @@ app.post('/new-user', async (req, res) => {
 });
 //get the users
 app.get('/users', async (req, res) => {
-  const result = await userCollections.find().toArray();
+  const result = await userCollections.find({}).toArray();
   res.send(result);
 });
+
+//get user by email
+app.get('/user/:email', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await userCollections.findOne(query);
+  res.send(result);
+});
+
 
 // ** Classes Route (Now it will work) **
 app.get('/classes', async (req, res) => {
