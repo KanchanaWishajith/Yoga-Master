@@ -81,6 +81,8 @@ app.post('/api/set-token', async (req, res) => {
   }
 });
 
+//
+
 
 app.post('/new-user', async (req, res) => {
   const newUser = req.body;
@@ -102,7 +104,7 @@ app.get('/user/:id', async (req, res) => {
 });
 
 //get user by email
-app.get('/user/email/:email', async (req, res) => { 
+app.get('/user/:email',verifyToken, async (req, res) => { 
   const email = req.params.email;
   const query = { email: email };
   const result = await userCollections.findOne(query);
@@ -110,7 +112,7 @@ app.get('/user/email/:email', async (req, res) => {
 });
 
 //delete user by id
-app.delete('/delete-user/:id', async (req, res) => {
+app.delete('/delete-user/:id',verifyToken, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await userCollections.deleteOne(query);
@@ -146,7 +148,7 @@ app.put('/update-user/:id', async (req, res) => {
 
 
 // ** Classes Route (Now it will work) **
-app.get('/classes',verifyToken, async (req, res) => {
+app.get('/classes', async (req, res) => {
   try {
     if (!classCollections) {
       return res.status(500).send({ error: "Database not connected" });
