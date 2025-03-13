@@ -7,7 +7,20 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
-//
+//verify token
+const verifyToken = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).json({ error: 'You must be logged in' });  
+  }
+  const token = authorization.split(' ')[1];  
+  jwt.verify(token, process.env.ASSESS_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Forbidden access' });
+    }
+    req.decoded = decoded;
+    next();
+  });};
 
 
 const port = process.env.PORT || 5000;
@@ -33,7 +46,7 @@ let appliedCollections;
 
 async function run() {
   try {
-    await client.connect();
+    //await client.connect();
 
     const database = client.db("yoga-master");
     classCollections = database.collection("classes"); // Assign to global variable
@@ -89,7 +102,7 @@ app.get('/user/:id', async (req, res) => {
 });
 
 //get user by email
-app.get('/user/:email', async (req, res) => {
+app.get('/user/email/:email', async (req, res) => { 
   const email = req.params.email;
   const query = { email: email };
   const result = await userCollections.findOne(query);
@@ -133,7 +146,7 @@ app.put('/update-user/:id', async (req, res) => {
 
 
 // ** Classes Route (Now it will work) **
-app.get('/classes', async (req, res) => {
+app.get('/classes',verifyToken, async (req, res) => {
   try {
     if (!classCollections) {
       return res.status(500).send({ error: "Database not connected" });
@@ -257,12 +270,11 @@ app.get('/cart-item/:id', async (req, res) =>{
 //cart info by user email
 app.get('/cart/:email', async (req, res) => {
   const email = req.params.email;
-  const query = {userMail: email};
-  const projection = {classId: 1};
-  const carts = await cartCollections.find(query, {projection: projection});
+  const query = { userMail: email };
+  const projection = { classId: 1 };
+  const carts = await cartCollections.find(query, { projection }).toArray(); // Fix applied
   const classIds = carts.map((cart) => new ObjectId(cart.classId));
-  const query2 = {_id: {$in: classIds}};
-  const result = await classCollections.find(query2).toArray();
+  const result = await classCollections.find({ _id: { $in: classIds } }).toArray();
   res.send(result);
 });
 
@@ -317,21 +329,18 @@ app.get('/popular-instructors', async (req, res) =>{
 });
 
 //admin status
-app.get('/admin-stats', async (req, res) =>{
-  const approvedClasses = ((await classCollections.find({status: 'approved'})).toArray()).length;
-  const pendingClasses = ((await classCollections.find({status: 'pending'})).toArray()).length;
-  const insertOnes = ((await classCollections.find({role: 'instructor'})).toArray()).length;
-  const totalClasses = ((await classCollections.find()).toArray()).length;
-  const totalEnrolled = ((await enrolledCollections.find()).toArray()).length;
+app.get('/admin-stats', async (req, res) => {
+  try {
+    const approvedClasses = (await classCollections.find({ status: 'approved' }).toArray()).length;
+    const pendingClasses = (await classCollections.find({ status: 'pending' }).toArray()).length;
+    const instructors = (await userCollections.find({ role: 'instructor' }).toArray()).length;
+    const totalClasses = (await classCollections.find().toArray()).length;
+    const totalEnrolled = (await enrolledCollections.find().toArray()).length;
 
-  const result = {
-    approvedClasses: approvedClasses,
-    pendingClasses: pendingClasses,
-    insertOnes: insertOnes,
-    totalClasses: totalClasses,
-    totalEnrolled: totalEnrolled
-  };
-  res.send(result);
+    res.send({ approvedClasses, pendingClasses, instructors, totalClasses, totalEnrolled });
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to fetch admin stats' });
+  }
 });
 
 //get all instructors
@@ -404,6 +413,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port} 🚀`);
 });
-
-
-//2.30
