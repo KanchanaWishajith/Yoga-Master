@@ -46,6 +46,14 @@ async function run() {
 }
 run(); // Call the function
 
+//routes for users
+app.post('/new-user', async (req, res) => {
+  const newUser = req.body;
+  const result = await userCollections.insertOne(newUser);
+  res.send(result);
+});
+
+
 // ** Classes Route (Now it will work) **
 app.get('/classes', async (req, res) => {
   try {
