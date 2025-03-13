@@ -81,7 +81,28 @@ app.post('/api/set-token', async (req, res) => {
   }
 });
 
-//
+//middleware for admin and instructor
+const verifyAdmin = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email: email };
+  const user = await userCollections.findOne(query);
+  if (user.role === 'admin') {
+    next();
+  } else {
+    return res.status(401).json({ message: 'Forbidden access' });
+  }
+}; 
+
+const verifyInstructor = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email: email };
+  const user = await userCollections.findOne(query);
+  if (user.role === 'instructor') {
+    next();
+  } else {
+    return res.status(401).json({ message: 'Forbidden access' });
+  }
+};
 
 
 app.post('/new-user', async (req, res) => {
@@ -112,7 +133,7 @@ app.get('/user/:email',verifyToken, async (req, res) => {
 });
 
 //delete user by id
-app.delete('/delete-user/:id',verifyToken, async (req, res) => {
+app.delete('/delete-user/:id',verifyToken,verifyAdmin, async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await userCollections.deleteOne(query);
@@ -120,7 +141,7 @@ app.delete('/delete-user/:id',verifyToken, async (req, res) => {
 });
 
 //update user by id
-app.put('/update-user/:id', async (req, res) => {
+app.put('/update-user/:id',verifyToken,verifyAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const updateUser = req.body;
@@ -163,7 +184,7 @@ app.get('/classes', async (req, res) => {
 });
 
 //get classes by instructor email address
-app.get('/classes/:email', async (req, res) => {
+app.get('/classes/:email',verifyToken,verifyInstructor, async (req, res) => {
   try {
       const email = req.params.email;
 
@@ -192,7 +213,7 @@ res.send(result);
 });
 
 //update classes statues and reason
-app.patch('/change-status/:id', async(req, res) =>{
+app.patch('/change-status/:id',verifyToken,verifyAdmin, async(req, res) =>{
   const id = req.params.id;
   const status = req.body.status;
   const reason = req.body.reason;
@@ -224,7 +245,7 @@ app.get('/class/:id', async (req, res) =>{
 });
 
 //update class details (all data)
-app.put('/update-class/:id', async (req, res) => {
+app.put('/update-class/:id',verifyToken,verifyInstructor, async (req, res) => {
   try {
     const id = req.params.id;
     const updateClass = req.body;
@@ -250,14 +271,14 @@ app.put('/update-class/:id', async (req, res) => {
 });
 
 //Cart Routes !-----------------------------------
-app.post('/add-to-cart', async (req, res) =>{
+app.post('/add-to-cart',verifyToken, async (req, res) =>{
   const newCartItem = req.body;
   const result  = await cartCollections.insertOne(newCartItem);
   res.send(result);
 });
 
 //get Cart item by id
-app.get('/cart-item/:id', async (req, res) =>{
+app.get('/cart-item/:id',verifyToken, async (req, res) =>{
   const id = req.params.id;
   const email = req.body.email;
   const query = {
@@ -270,7 +291,7 @@ app.get('/cart-item/:id', async (req, res) =>{
 });
 
 //cart info by user email
-app.get('/cart/:email', async (req, res) => {
+app.get('/cart/:email',verifyToken, async (req, res) => {
   const email = req.params.email;
   const query = { userMail: email };
   const projection = { classId: 1 };
@@ -281,7 +302,7 @@ app.get('/cart/:email', async (req, res) => {
 });
 
 //delete cart item
-app.delete('/delete-cart-item/:id', async (req, res) =>{
+app.delete('/delete-cart-item/:id',verifyToken, async (req, res) =>{
   const id = req.params.id;
   const query = {classId: id};
   const result = await cartCollections.deleteOne(query);
@@ -331,7 +352,7 @@ app.get('/popular-instructors', async (req, res) =>{
 });
 
 //admin status
-app.get('/admin-stats', async (req, res) => {
+app.get('/admin-stats',verifyToken,verifyAdmin, async (req, res) => {
   try {
     const approvedClasses = (await classCollections.find({ status: 'approved' }).toArray()).length;
     const pendingClasses = (await classCollections.find({ status: 'pending' }).toArray()).length;
@@ -352,7 +373,7 @@ app.get('/instructors', async (req, res) =>{
 });
 
 //get enrolled classes
-app.get('/enrolled-classes/:email', async (req, res) =>{
+app.get('/enrolled-classes/:email',verifyToken, async (req, res) =>{
   const email = req.params.email;
   const query = {userEmail: email};
   const pipeline = [
