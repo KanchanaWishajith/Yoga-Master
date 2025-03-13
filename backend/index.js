@@ -254,6 +254,47 @@ app.get('/instructors', async (req, res) =>{
   res.send(result); 
 });
 
+//get enrolled classes
+app.get('/enrolled-classes/:email', async (req, res) =>{
+  const email = req.params.email;
+  const query = {userEmail: email};
+  const pipeline = [
+    {
+      $match: query
+    },
+    {
+      $lookup: {
+        from: "classes",
+        localField: "classId",
+        foreignField: "_id",
+        as: "class"
+      }
+    },
+    {
+      $unwind: "$class"
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "classes.instructorEmail",
+        foreignField: "email",
+        as: "instructor"
+      }
+    }, {
+      $project: {
+        _id: 0,
+        instructor: {
+          $arrayElemAt: ["$instructor", 0]
+        },
+        classes: 1
+      }
+    }
+  ];
+  const result = await enrolledCollections.aggregate(pipeline).toArray();
+  res.send(result);
+});
+
+
 
 
 
