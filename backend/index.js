@@ -1,10 +1,14 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
 app.use(cors());
 app.use(express.json());
+
+//
+
 
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId, ServerDescription } = require('mongodb');
@@ -47,6 +51,24 @@ async function run() {
 run(); // Call the function
 
 //routes for users
+app.post('/api/set-token', async (req, res) => {
+  try {
+    const user = req.body;
+
+    if (!process.env.ASSESS_SECRET) {
+      return res.status(500).json({ error: 'Secret key not found in environment variables' });
+    }
+
+    const token = jwt.sign(user, process.env.ASSESS_SECRET, { expiresIn: '24h' });
+
+    res.json({ token }); // Send as JSON
+  } catch (error) {
+    console.error('Token generation error:', error);
+    res.status(500).json({ error: 'Failed to generate token' });
+  }
+});
+
+
 app.post('/new-user', async (req, res) => {
   const newUser = req.body;
   const result = await userCollections.insertOne(newUser);
@@ -94,7 +116,10 @@ app.put('/update-user/:id', async (req, res) => {
         name: updateUser.name,
         email: updateUser.email,
         role: updateUser.role,
-        password: updateUser.password,
+        address: updateUser.address,
+        about: updateUser.about,
+        photoUrl: updateUser.photoUrl,
+        skills: updateUser.skills ? updateUser.skills : null,
       },
     };
 
