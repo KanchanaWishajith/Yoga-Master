@@ -82,7 +82,29 @@ app.delete('/delete-user/:id', async (req, res) => {
   res.send(result);
 });
 
-//
+//update user by id
+app.put('/update-user/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateUser = req.body;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: {
+        name: updateUser.name,
+        email: updateUser.email,
+        role: updateUser.role,
+        password: updateUser.password,
+      },
+    };
+
+    const result = await userCollections.updateOne(filter, updateDoc, options);
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'An error occurred while updating the user.' });
+  }
+});
 
 
 // ** Classes Route (Now it will work) **
