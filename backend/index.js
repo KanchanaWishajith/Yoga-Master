@@ -58,13 +58,22 @@ app.get('/users', async (req, res) => {
   res.send(result);
 });
 
-//get user by email
-app.get('/user/:email', async (req, res) => {
+//get user by id
+app.get('/user/:id', async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await userCollections.findOne(query);
   res.send(result);
 });
+
+//get user by email
+app.get('/user/:email', async (req, res) => {
+  const email = req.params.email;
+  const query = { email: email };
+  const result = await userCollections.findOne(query);
+  res.send(result);
+});
+
 
 
 // ** Classes Route (Now it will work) **
