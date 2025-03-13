@@ -52,7 +52,11 @@ app.post('/new-user', async (req, res) => {
   const result = await userCollections.insertOne(newUser);
   res.send(result);
 });
-
+//get the users
+app.get('/users', async (req, res) => {
+  const result = await userCollections.find().toArray();
+  res.send(result);
+});
 
 // ** Classes Route (Now it will work) **
 app.get('/classes', async (req, res) => {
