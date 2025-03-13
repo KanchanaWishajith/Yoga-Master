@@ -230,6 +230,23 @@ app.get('/popular-instructors', async (req, res) =>{
     res.send(result);
 });
 
+//admin status
+app.get('/admin-stats', async (req, res) =>{
+  const approvedClasses = ((await classCollections.find({status: 'approved'})).toArray()).length;
+  const pendingClasses = ((await classCollections.find({status: 'pending'})).toArray()).length;
+  const insertOnes = ((await classCollections.find({role: 'instructor'})).toArray()).length;
+  const totalClasses = ((await classCollections.find()).toArray()).length;
+  const totalEnrolled = ((await enrolledCollections.find()).toArray()).length;
+
+  const result = {
+    approvedClasses: approvedClasses,
+    pendingClasses: pendingClasses,
+    insertOnes: insertOnes,
+    totalClasses: totalClasses,
+    totalEnrolled: totalEnrolled
+  };
+  res.send(result);
+});
 
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
