@@ -189,12 +189,47 @@ app.delete('/delete-cart-item/:id', async (req, res) =>{
 });
 
 //Enrollment Routes
-app.get("/popular_classws", async (req, res) =>{
+app.get("/popular_classes", async (req, res) =>{
   const result = await classCollections.find().sort({totalEnrolled: -1}).limit(6).toArray();
   res.send(result);
 });
 
-3.00
+app.get('/popular-instructors', async (req, res) =>{
+  const pipeline = [
+    {
+      $group: {
+        _id: "$instructorEmail",
+        totalEnrolled: { $sum: "$totalEnrolled"}
+      }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "email",
+          as: "instructor"
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          instructor: {
+            $arrayElemAt: ["$instructor", 0]
+          },
+          totalEnrolled: 1
+        }
+      },
+      {
+        $sort: {totalEnrolled: -1}
+      },
+      {
+        $limit: 6
+      }
+    ];
+    const result = await classCollections.aggregate(pipeline).toArray();
+    res.send(result);
+});
+
 
 app.get('/', (req, res) => {
   res.send('Hello World! 2024 Kanchana');
